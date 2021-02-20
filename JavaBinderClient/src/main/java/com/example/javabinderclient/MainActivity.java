@@ -92,7 +92,25 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     e.printStackTrace();
                 }
 
-                runOnUiThread(new SetTextRunnable("Talked to IMyService. Returned : " + returnedString));
+                ComplexType returnedObject = null;
+
+                try
+                {
+                    Log.d(Constants.LOG_TAG, "[App] [java] IMyService.returnComplexType");
+
+                    returnedObject = mService.returnComplexType(2021, 65535000,
+                            true, 3.14f, 3.141592653589793238,
+                            "Hello, World!");
+                }
+                catch (RemoteException e)
+                {
+                    Log.e(Constants.LOG_TAG, "[App] [java] Exception when invoking IMyService.returnComplexType" +
+                            e.getMessage());
+
+                    e.printStackTrace();
+                }
+
+                runOnUiThread(new SetTextRunnable("Talked to IMyService. Returned : " + returnedObject));
             }
         }).start();
     }

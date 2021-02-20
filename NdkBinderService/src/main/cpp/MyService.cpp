@@ -37,3 +37,23 @@ ScopedAStatus MyService::complexType(const ComplexType &in_aComplexObject, std::
 
     return ScopedAStatus::ok();
 }
+
+ScopedAStatus MyService::returnComplexType(int32_t in_anInt, int64_t in_aLong, bool in_aBoolean,
+        float in_aFloat, double in_aDouble, const std::string &in_aString,
+        ComplexType *_aidl_return)
+{
+    LOGD("[MyService] [cpp] returnComplexType: int=%d, long=%ld, bool=%d, float=%f, double=%f, string=%s",
+         in_anInt, in_aLong, in_aBoolean, in_aFloat, in_aDouble, in_aString.c_str());
+
+    // TODO: find if this is the correct way of setting the returning struct/object
+    *_aidl_return = ComplexType();
+
+    _aidl_return->i_Int = in_anInt;
+    _aidl_return->l_Long = in_aLong;
+    _aidl_return->b_Boolean = in_aBoolean;
+    _aidl_return->f_Float = in_aFloat;
+    _aidl_return->d_Double = in_aDouble;
+    _aidl_return->s_String = in_aString;
+
+    return ScopedAStatus::ok();
+}

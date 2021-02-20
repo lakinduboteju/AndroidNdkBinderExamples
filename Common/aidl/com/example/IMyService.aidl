@@ -16,4 +16,10 @@ interface IMyService {
      * Demonstrates complex type that you can use as a parameter in AIDL.
      */
     String complexType(in ComplexType aComplexObject);
+
+    /**
+     * Demonstrates complex type that you can use as a return value in AIDL.
+     */
+    ComplexType returnComplexType(int anInt, long aLong, boolean aBoolean,
+            float aFloat, double aDouble, String aString);
 }

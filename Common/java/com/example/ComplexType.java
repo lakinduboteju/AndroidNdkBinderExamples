@@ -64,4 +64,21 @@ public class ComplexType implements Parcelable
         parcel.writeDouble(mDouble);
         parcel.writeString(mString);
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder str = new StringBuilder();
+
+        str.append("ComplexType{")
+                .append("int=").append(mInt)
+                .append(", long=").append(mLong)
+                .append(", boolean=").append(mBoolean)
+                .append(", float=").append(mFloat)
+                .append(", double=").append(mDouble)
+                .append(", string='").append(mString).append('\'')
+                .append('}');
+
+        return str.toString();
+    }
 }
