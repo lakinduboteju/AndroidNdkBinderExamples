@@ -4,20 +4,35 @@ plugins {
 
 android {
     compileSdkVersion 30
-    buildToolsVersion '30.0.2'
+    buildToolsVersion '29.0.3'
 
     defaultConfig {
-        applicationId "com.example.javabinderclient"
+        applicationId "com.example.ndkbinderclient"
         minSdkVersion 29
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+                arguments "-Daidl_src_dir=${[project(':Common').projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)}",
+                          "-Dcommon_inc_dir=${[project(':Common').projectDir.absolutePath, 'src', 'main', 'cpp', 'includes'].join(File.separator)}"
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
         }
     }
 

@@ -17,6 +17,22 @@ public:
     std::string s_String;
 
 public:
+    ComplexType() : i_Int(-1), l_Long(-1), b_Boolean(false), f_Float(-1.0f),
+                    d_Double(-1.0), s_String()
+    {}
+
+    ComplexType(int iInt, long lLong, bool bBoolean, float fFloat, double dDouble,
+            std::string sString)
+    {
+        i_Int = iInt;
+        l_Long = lLong;
+        b_Boolean = bBoolean;
+        f_Float = fFloat;
+        d_Double = dDouble;
+        s_String = sString;
+    }
+
+public:
     binder_status_t readFromParcel(const AParcel* pParcel)
     {
         int32_t iNotNull;
@@ -57,6 +73,16 @@ public:
         ndk::AParcel_writeString(pParcel, s_String);
 
         return STATUS_OK;
+    }
+
+    void toString(std::string* pOutputString)
+    {
+        char strBuf[1024];
+        snprintf(strBuf, 1024,
+                "ComplexType{int=%d, long=%ld, bool=%d, float=%f, double=%lf, string='%s'}",
+                 i_Int, l_Long, b_Boolean, f_Float, d_Double, s_String.c_str());
+
+        pOutputString->append(strBuf);
     }
 };
 

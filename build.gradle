@@ -24,5 +24,7 @@ task clean(type: Delete) {
         delete rootProject.buildDir
         delete project(':NdkBinderService').buildDir
         delete project(':JavaBinderClient').buildDir
+        delete project(':JavaBinderService').buildDir
+        delete project(':NdkBinderClient').buildDir
     }
 }

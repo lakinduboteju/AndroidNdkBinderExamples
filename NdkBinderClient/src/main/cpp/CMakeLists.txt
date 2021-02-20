@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-project("ndkbinderservice")
+project("ndkbinderclient")
 
 add_library (
         native-lib
         SHARED
         native-lib.cpp
-        MyService.cpp
         ${aidl_src_dir}/com/example/IMyService.cpp
 )
 

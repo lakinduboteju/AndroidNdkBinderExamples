@@ -5,12 +5,12 @@ import android.os.Parcelable;
 
 public class ComplexType implements Parcelable
 {
-    int mInt;
-    long mLong;
-    boolean mBoolean;
-    float mFloat;
-    double mDouble;
-    String mString;
+    public final int mInt;
+    public final long mLong;
+    public final boolean mBoolean;
+    public final float mFloat;
+    public final double mDouble;
+    public final String mString;
 
     public ComplexType(int anInt, long aLong, boolean aBoolean, float aFloat,
                        double aDouble, String aString)

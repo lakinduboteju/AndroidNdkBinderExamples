@@ -1,0 +1,64 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion '29.0.3'
+
+    defaultConfig {
+        minSdkVersion 29
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+}
+
+task compileAidlNdk() {
+    doLast {
+        def aidlCpp = [android.sdkDirectory, 'build-tools', android.buildToolsVersion,
+                                 'aidl'].join(File.separator)
+
+        def outDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)
+
+        def headerOutDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'includes'].join(File.separator)
+
+        def searchPathForImports = [projectDir.absolutePath, 'src', 'main', 'aidl'].join(File.separator)
+
+        def aidlFile = [projectDir.absolutePath, 'src', 'main', 'aidl',
+                         'com', 'example', 'IMyService.aidl'].join(File.separator)
+
+        exec {
+            executable(aidlCpp)
+            args('--lang=ndk', '-o', outDir, '-h', headerOutDir, '-I', searchPathForImports, aidlFile)
+        }
+    }
+}
+
+afterEvaluate {
+    preBuild.dependsOn(compileAidlNdk)
+}
+
+clean.doLast {
+    def aidlCppOutDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)
+
+    def aidlCppHeaderOutDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'includes',
+                            'aidl'].join(File.separator)
+
+    delete(file(aidlCppOutDir))
+    delete(file(aidlCppHeaderOutDir))
+}

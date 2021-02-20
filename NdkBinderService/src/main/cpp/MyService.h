@@ -1,6 +1,6 @@
 #pragma once
 
-#include "aidl/com/example/BnMyService.h"
+#include <aidl/com/example/BnMyService.h>
 
 using aidl::com::example::ComplexType;
 using ndk::ScopedAStatus;

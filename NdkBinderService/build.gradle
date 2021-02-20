@@ -16,6 +16,8 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++17"
+                arguments "-Daidl_src_dir=${[project(':Common').projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)}",
+                          "-Dcommon_inc_dir=${[project(':Common').projectDir.absolutePath, 'src', 'main', 'cpp', 'includes'].join(File.separator)}"
             }
         }
     }
@@ -38,48 +40,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    sourceSets {
-        main.java.srcDirs += [rootDir.absolutePath, 'Common', 'java'].join(File.separator)
-        main.aidl.srcDirs += [rootDir.absolutePath, 'Common', 'aidl'].join(File.separator)
-    }
 }
 
 dependencies {
     implementation 'com.google.android.material:material:1.3.0'
-}
-
-task compileAidlNdk() {
-    doLast {
-        def aidlCpp = [android.sdkDirectory, 'build-tools', android.buildToolsVersion,
-                                 'aidl'].join(File.separator)
-
-        def outDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)
-
-        def headerOutDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'includes'].join(File.separator)
-
-        def searchPathForImports = [rootDir.absolutePath, 'Common', 'aidl'].join(File.separator)
-
-        def aidlFile = [rootDir.absolutePath, 'Common', 'aidl',
-                         'com', 'example', 'IMyService.aidl'].join(File.separator)
-
-        exec {
-            executable(aidlCpp)
-            args('--lang=ndk', '-o', outDir, '-h', headerOutDir, '-I', searchPathForImports, aidlFile)
-        }
-    }
-}
-
-afterEvaluate {
-    preBuild.dependsOn(compileAidlNdk)
-}
-
-clean.doLast {
-    def aidlCppOutDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)
-
-    def aidlCppHeaderOutDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'includes',
-                            'aidl'].join(File.separator)
-
-    delete(file(aidlCppOutDir))
-    delete(file(aidlCppHeaderOutDir))
+    implementation project(path: ':Common')
 }
