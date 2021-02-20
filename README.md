@@ -173,3 +173,37 @@ public:
     }
 };
 ```
+
+Service implementation.
+
+`NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java`
+
+```java
+package com.example.ndkbinderservice;
+
+public class MyService extends Service
+{
+    static
+    {
+        System.loadLibrary("native-lib");
+    }
+
+    private IBinder mBinder;
+
+    @Override
+    public void onCreate()
+    {
+        super.onCreate();
+
+        mBinder = createServiceBinder();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent)
+    {
+        return mBinder;
+    }
+
+    public native IBinder createServiceBinder();
+}
+```
