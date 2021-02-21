@@ -1,27 +1,50 @@
 # Android NDK (C++) Binder Examples
 
-## NDK Binder Service
+## How to run NDK Binder service
+
+1. Build and install `NdkBinderService` APK. It contains an Android Service, whose implementation is done in C++ JNI layer using NDK Binder APIs.
+
+2. Build and install `JavaBinderClient` APK. It contains an Android Activity, who binds the Service from `NdkBinderService` and talks to Service using Java Binder APIs.
+
+3. Run `JavaBinderClient`'s main Activity.
+
+## How to run NDK Binder client
+
+1. Build and install `JavaBinderService` APK. It contains an Android Service implemented in Java.
+
+2. Build and install `NdkBinderClient` APK. It contains an Android Activity, who binds the Service from `JavaBinderService` and passes the IBinder object to C++ JNI layer to talk to the Service using NDK Binder APIs.
+
+3. Run `NdkBinderClient`'s main Activity.
+
+## NDK Binder service implementation details
+
+[NdkBinderService](NdkBinderService/) : Android app (APK) module, containing a Java Service ([MyService.java](NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java)) that implements an AIDL ([IMyService.aidl](Common/src/main/aidl/com/example/IMyService.aidl)). Implementation (Binder native) is done in C++ JNI layer ([MyService.cpp](NdkBinderService/src/main/cpp/MyService.cpp)).
 
 AIDL
 
-`Common/aidl/com/example/IMyService.aidl`
+[Common/aidl/com/example/IMyService.aidl](Common/aidl/com/example/IMyService.aidl)
 
 ```java
 package com.example;
 
 import com.example.ComplexType;
 
-interface IMyService {
+interface IMyService
+{
     void basicTypes(int anInt, long aLong, boolean aBoolean,
                     float aFloat, double aDouble, String aString);
     
     String complexType(in ComplexType aComplexObject);
+
+    ComplexType returnComplexType(int anInt, long aLong,
+                    boolean aBoolean, float aFloat,
+                    double aDouble, String aString);
 }
 ```
 
 Gradle task to auto-generate NDK C++ binder source files.
 
-`NdkBinderService/build.gradle`
+[Common/build.gradle](Common/build.gradle)
 
 ```gradle
 task compileAidlNdk() {
@@ -35,13 +58,13 @@ task compileAidlNdk() {
                       'src', 'main', 'cpp', 'aidl'].join(File.separator)
 
         def headerOutDir = [projectDir.absolutePath,
-                            'src', 'main', 'cpp', 'includes'].join(File.separator)
+                           'src', 'main', 'cpp', 'includes'].join(File.separator)
 
-        def searchPathForImports = [rootDir.absolutePath,
-                                    'Common', 'aidl'].join(File.separator)
+        def searchPathForImports = [projectDir.absolutePath, 'src', 'main', 'aidl'].join(File.separator)
 
-        def aidlFile = [rootDir.absolutePath, 'Common', 'aidl',
-                         'com', 'example', 'IMyService.aidl'].join(File.separator)
+        def aidlFile = [projectDir.absolutePath,
+                       'src', 'main', 'aidl',
+                       'com', 'example', 'IMyService.aidl'].join(File.separator)
 
         exec {
             executable(aidlCpp)
@@ -61,7 +84,7 @@ afterEvaluate {
 
 JNI library and NDK Binder implementations.
 
-`NdkBinderService/src/main/cpp/native-lib.cpp`
+[NdkBinderService/src/main/cpp/native-lib.cpp](NdkBinderService/src/main/cpp/native-lib.cpp)
 
 ```c++
 #include <jni.h>
@@ -77,10 +100,10 @@ Java_com_example_ndkbinderservice_MyService_createServiceBinder(
 }
 ```
 
-`NdkBinderService/src/main/cpp/MyService.cpp`
+[NdkBinderService/src/main/cpp/MyService.cpp](NdkBinderService/src/main/cpp/MyService.cpp)
 
 ```c++
-#include "aidl/com/example/BnMyService.h"
+#include <aidl/com/example/BnMyService.h>
 
 class MyService : public BnMyService
 {
@@ -111,10 +134,12 @@ public:
 
         return ScopedAStatus::ok();
     }
+
+    ...
 };
 ```
 
-`NdkBinderService/src/main/cpp/includes/ComplexType.h`
+[Common/src/main/cpp/includes/ComplexType.h](Common/src/main/cpp/includes/ComplexType.h)
 
 ```c++
 #include <android/binder_status.h>
@@ -176,7 +201,7 @@ public:
 
 Service implementation.
 
-`NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java`
+[NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java](NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java)
 
 ```java
 package com.example.ndkbinderservice;
