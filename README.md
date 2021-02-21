@@ -2,17 +2,17 @@
 
 ## How to run NDK Binder service
 
-1. Build and install `NdkBinderService` APK. It contains an Android Service, whose implementation is done in C++ JNI layer using NDK Binder APIs.
+1. Build and install [NdkBinderService](NdkBinderService/) APK. It contains an Android Service, whose implementation is done in C++ JNI layer using NDK Binder APIs.
 
-2. Build and install `JavaBinderClient` APK. It contains an Android Activity, who binds the Service from `NdkBinderService` and talks to Service using Java Binder APIs.
+2. Build and install [JavaBinderClient](JavaBinderClient/) APK. It contains an Android Activity, who binds the Service from `NdkBinderService` and talks to Service using Java Binder APIs.
 
 3. Run `JavaBinderClient`'s main Activity.
 
 ## How to run NDK Binder client
 
-1. Build and install `JavaBinderService` APK. It contains an Android Service implemented in Java.
+1. Build and install [JavaBinderService](JavaBinderService/) APK. It contains an Android Service implemented in Java.
 
-2. Build and install `NdkBinderClient` APK. It contains an Android Activity, who binds the Service from `JavaBinderService` and passes the IBinder object to C++ JNI layer to talk to the Service using NDK Binder APIs.
+2. Build and install [NdkBinderClient](NdkBinderClient/) APK. It contains an Android Activity, who binds the Service from `JavaBinderService` and passes the IBinder object to C++ JNI layer to talk to the Service using NDK Binder APIs.
 
 3. Run `NdkBinderClient`'s main Activity.
 
@@ -22,7 +22,7 @@
 
 AIDL
 
-[Common/aidl/com/example/IMyService.aidl](Common/aidl/com/example/IMyService.aidl)
+[Common/src/main/aidl/com/example/IMyService.aidl](Common/src/main/aidl/com/example/IMyService.aidl)
 
 ```java
 package com.example;
@@ -230,5 +230,178 @@ public class MyService extends Service
     }
 
     public native IBinder createServiceBinder();
+}
+```
+
+## NDK Binder client implementation details
+
+[NdkBinderClient](NdkBinderClient/) : Android app (APK) module, containing a Java Activity ([MainActivity.java](NdkBinderClient/src/main/java/com/example/ndkbinderclient/MainActivity.java)) that binds an Android Service. IBinder object received onServiceConnection is passed to a C++ JNI layer ([native-lib.cpp](NdkBinderClient/src/main/cpp/native-lib.cpp)), and communication with the service happens in JNI layer.
+
+[NdkBinderClient/src/main/java/com/example/ndkbinderclient/MainActivity.java](NdkBinderClient/src/main/java/com/example/ndkbinderclient/MainActivity.java)
+
+```java
+public class MainActivity extends AppCompatActivity implements ServiceConnection
+{
+    static
+    {
+        System.loadLibrary("native-lib");
+    }
+
+    private volatile boolean mIsServiceConnected = false;
+    private final ConditionVariable mServiceConnectionWaitLock = new ConditionVariable();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        Intent intent = new Intent();
+        intent.setClassName("com.example.javabinderservice",
+                "com.example.javabinderservice.MyService");
+
+        bindService(intent, this, BIND_AUTO_CREATE);
+
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                // Not connected to service yet?
+                while(!mIsServiceConnected)
+                {
+                    mServiceConnectionWaitLock.block(); // waits for service connection
+                }
+
+                talkToService();
+            }
+        }).start();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        unbindService(this);
+
+        mIsServiceConnected = false;
+
+        onServiceDisconnected();
+
+        super.onPause();
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName componentName, IBinder iBinder)
+    {
+        onServiceConnected(iBinder);
+
+        mIsServiceConnected = true;
+
+        mServiceConnectionWaitLock.open(); // breaks service connection waits
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName componentName)
+    {
+        mIsServiceConnected = false;
+
+        onServiceDisconnected();
+    }
+
+    public native void onServiceConnected(IBinder binder);
+    public native void onServiceDisconnected();
+    public native String talkToService();
+}
+```
+
+JNI library implementation.
+
+[NdkBinderClient/src/main/cpp/native-lib.cpp](NdkBinderClient/src/main/cpp/native-lib.cpp)
+
+```c++
+#include <jni.h>
+#include <aidl/com/example/IMyService.h>
+#include <android/binder_ibinder_jni.h>
+
+std::shared_ptr<IMyService> g_spMyService;
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_ndkbinderclient_MainActivity_onServiceConnected(
+        JNIEnv* env,
+        jobject /* this */,
+        jobject binder)
+{
+    AIBinder* pBinder = AIBinder_fromJavaBinder(env, binder);
+
+    const ::ndk::SpAIBinder spBinder(pBinder);
+    g_spMyService = IMyService::fromBinder(spBinder);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_ndkbinderclient_MainActivity_onServiceDisconnected(
+        JNIEnv* env,
+        jobject /* this */)
+{
+    g_spMyService = nullptr;
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_example_ndkbinderclient_MainActivity_talkToService(
+        JNIEnv* env,
+        jobject /* this */)
+{
+    ScopedAStatus basicTypesResult = g_spMyService->basicTypes(2021, 65535000,
+            true, 3.14f, 3.141592653589793238, "Hello, World!");
+
+    if(basicTypesResult.isOk())
+    {
+        ...
+    }
+    else
+    {
+        ...
+    }
+
+    ComplexType ct(2021, 65535000, true, 3.14f,3.141592653589793238,
+            "Hello, World!");
+
+    std::string sReturnedString;
+
+    ScopedAStatus complexTypeResult = g_spMyService->complexType(ct, &sReturnedString);
+
+    if(complexTypeResult.isOk())
+    {
+        ...
+    }
+    else
+    {
+        ...
+    }
+
+    ComplexType returnedComplexObject;
+
+    ScopedAStatus returnComplexTypeResult = g_spMyService->returnComplexType(2021,
+            65535000, true, 3.14f, 3.141592653589793238,
+            "Hello, World!", &returnedComplexObject);
+
+    if(returnComplexTypeResult.isOk())
+    {
+        ...
+    }
+    else
+    {
+        ...
+    }
+
+    std::string sRet;
+    returnedComplexObject.toString(&sRet);
+
+    return env->NewStringUTF(sRet.c_str());
 }
 ```
