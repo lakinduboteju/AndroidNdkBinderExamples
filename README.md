@@ -2,7 +2,7 @@
 
 ## How to run NDK Binder service
 
-1. Build and install [NdkBinderService](NdkBinderService/) APK. It contains an Android Service, whose implementation is done in C++ JNI layer using NDK Binder APIs.
+1. Build and install [NdkBinderService](NdkBinderService/) APK. It contains an Android Service, whose binder implementation is done in C++ JNI layer using NDK Binder APIs.
 
 2. Build and install [JavaBinderClient](JavaBinderClient/) APK. It contains an Android Activity, who binds the Service from `NdkBinderService` and talks to Service using Java Binder APIs.
 
@@ -42,11 +42,47 @@ interface IMyService
 }
 ```
 
-Gradle task to auto-generate NDK C++ binder source files.
+[Common/src/main/aidl/com/example/ComplexType.aidl](Common/src/main/aidl/com/example/ComplexType.aidl)
+
+```java
+package com.example;
+
+parcelable ComplexType cpp_header "ComplexType.h";
+```
+
+There is a Gradle task (`compileAidlNdk`) to auto-generate NDK C++ binder source files.
 
 [Common/build.gradle](Common/build.gradle)
 
 ```gradle
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion '29.0.3'
+    
+    defaultConfig {
+        minSdkVersion 29
+        
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+            }
+        }
+    }
+    
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
+    
+    ...
+}
+
 task compileAidlNdk() {
     doLast {
         def aidlCpp = [android.sdkDirectory,
@@ -82,7 +118,41 @@ afterEvaluate {
 }
 ```
 
-JNI library and NDK Binder implementations.
+Service implementation.
+
+[NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java](NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java)
+
+```java
+package com.example.ndkbinderservice;
+
+public class MyService extends Service
+{
+    static
+    {
+        System.loadLibrary("native-lib");
+    }
+
+    private IBinder mBinder;
+
+    @Override
+    public void onCreate()
+    {
+        super.onCreate();
+
+        mBinder = createServiceBinder();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent)
+    {
+        return mBinder;
+    }
+
+    public native IBinder createServiceBinder();
+}
+```
+
+Service's JNI library and NDK Binder implementations.
 
 [NdkBinderService/src/main/cpp/native-lib.cpp](NdkBinderService/src/main/cpp/native-lib.cpp)
 
@@ -197,40 +267,6 @@ public:
         return STATUS_OK;
     }
 };
-```
-
-Service implementation.
-
-[NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java](NdkBinderService/src/main/java/com/example/ndkbinderservice/MyService.java)
-
-```java
-package com.example.ndkbinderservice;
-
-public class MyService extends Service
-{
-    static
-    {
-        System.loadLibrary("native-lib");
-    }
-
-    private IBinder mBinder;
-
-    @Override
-    public void onCreate()
-    {
-        super.onCreate();
-
-        mBinder = createServiceBinder();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent)
-    {
-        return mBinder;
-    }
-
-    public native IBinder createServiceBinder();
-}
 ```
 
 ## NDK Binder client implementation details
