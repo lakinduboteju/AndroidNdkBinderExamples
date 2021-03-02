@@ -16,8 +16,8 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++17"
-                arguments "-Daidl_src_dir=${[project(':Common').projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)}",
-                          "-Dcommon_inc_dir=${[project(':Common').projectDir.absolutePath, 'src', 'main', 'cpp', 'includes'].join(File.separator)}"
+                arguments "-Daidl_src_dir=${[project(':Common').projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator).replace("\\","/")}",
+                          "-Dcommon_inc_dir=${[project(':Common').projectDir.absolutePath, 'src', 'main', 'cpp', 'includes'].join(File.separator).replace("\\","/")}"
             }
         }
     }
