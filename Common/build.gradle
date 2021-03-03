@@ -30,8 +30,8 @@ dependencies {
 
 task compileAidlNdk() {
     doLast {
-        def aidlCpp = [android.sdkDirectory, 'build-tools', android.buildToolsVersion,
-                                 'aidl'].join(File.separator)
+        def aidl = [android.sdkDirectory, 'build-tools', android.buildToolsVersion,
+                    'aidl'].join(File.separator)
 
         def outDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)
 
@@ -40,10 +40,10 @@ task compileAidlNdk() {
         def searchPathForImports = [projectDir.absolutePath, 'src', 'main', 'aidl'].join(File.separator)
 
         def aidlFile = [projectDir.absolutePath, 'src', 'main', 'aidl',
-                         'com', 'example', 'IMyService.aidl'].join(File.separator)
+                         'com', 'example', "IMyService.aidl"].join(File.separator)
 
         exec {
-            executable(aidlCpp)
+            executable(aidl)
             args('--lang=ndk', '-o', outDir, '-h', headerOutDir, '-I', searchPathForImports, aidlFile)
         }
     }
@@ -59,6 +59,6 @@ clean.doLast {
     def aidlCppHeaderOutDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'includes',
                             'aidl'].join(File.separator)
 
-    delete(file(aidlCppOutDir))
-    delete(file(aidlCppHeaderOutDir))
+    file(aidlCppOutDir).deleteDir()
+    file(aidlCppHeaderOutDir).deleteDir()
 }

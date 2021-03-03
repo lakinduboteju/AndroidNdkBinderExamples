@@ -21,10 +21,10 @@ allprojects {
 
 task clean(type: Delete) {
     doLast {
-        delete rootProject.buildDir
-        delete project(':NdkBinderService').buildDir
-        delete project(':JavaBinderClient').buildDir
-        delete project(':JavaBinderService').buildDir
-        delete project(':NdkBinderClient').buildDir
+        rootProject.buildDir.deleteDir()
+        project(':NdkBinderService').buildDir.deleteDir()
+        project(':JavaBinderClient').buildDir.deleteDir()
+        project(':JavaBinderService').buildDir.deleteDir()
+        project(':NdkBinderClient').buildDir.deleteDir()
     }
 }
