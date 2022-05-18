@@ -1,20 +1,72 @@
 # Android NDK (C++) Binder Examples
 
-## How to run NDK Binder service
+This is an Android Studio project that demonstrates 2 different scenarios.
+
+1. How to implement an Android Service in C++ using NDK Binder APIs.
+
+2. How to call an Android Service directly from the C++ JNI layer.
+
+## Example 1 : C++ Android Service and a client written in Java that consumes it
+
+This example demonstrates how to ...
+
+* implement an Android Service binder in C++ using NDK Binder APIs (`NDKBinderService`).
+
+* implement a Java client that binds the NDK Binder Service and call the service APIs (`JavaBinderClient`).
+
+### To see this example in action, take the following steps.
 
 1. Build and install [NdkBinderService](NdkBinderService/) APK. It contains an Android Service, whose binder implementation is done in C++ JNI layer using NDK Binder APIs.
 
+``` bash
+# You can issue following bash commands to build and install NdkBinderService APK on your device.
+# Or if you don't want to use bash (terminal), you can use Android Studio as well to build the NdkBinderService APK.
+
+$ ./gradlew NdkBinderService:assembleDebug
+
+$ adb install -f NdkBinderService/build/outputs/apk/debug/NdkBinderService-debug.apk
+```
+
 2. Build and install [JavaBinderClient](JavaBinderClient/) APK. It contains an Android Activity, who binds the Service from `NdkBinderService` and talks to Service using Java Binder APIs.
 
-3. Run `JavaBinderClient`'s main Activity.
+``` bash
+# You can issue following bash commands to build and install JavaBinderClient APK on your device.
+# Or if you don't want to use bash (terminal), you can use Android Studio as well to build the JavaBinderClient APK.
 
-## How to run NDK Binder client
+$ ./gradlew JavaBinderClient:assembleDebug
+
+$ adb install -f JavaBinderClient/build/outputs/apk/debug/JavaBinderClient-debug.apk
+```
+
+3. Run `JavaBinderClient`'s main Activity from Android app launcher.
+
+## Example 2 : C++ client that consumes a plain old AIDL service
+
+This example demonstrates how to implement a client that binds an AIDL service and call the service APIs from C++ JNI layer.
 
 1. Build and install [JavaBinderService](JavaBinderService/) APK. It contains an Android Service implemented in Java.
 
+``` bash
+# You can issue following bash commands to build and install JavaBinderService APK on your device.
+# Or if you don't want to use bash (terminal), you can use Android Studio as well to build the JavaBinderService APK.
+
+$ ./gradlew JavaBinderService:assembleDebug
+
+$ adb install -f JavaBinderService/build/outputs/apk/debug/JavaBinderService-debug.apk
+```
+
 2. Build and install [NdkBinderClient](NdkBinderClient/) APK. It contains an Android Activity, who binds the Service from `JavaBinderService` and passes the IBinder object to C++ JNI layer to talk to the Service using NDK Binder APIs.
 
-3. Run `NdkBinderClient`'s main Activity.
+``` bash
+# You can issue following bash commands to build and install NdkBinderClient APK on your device.
+# Or if you don't want to use bash (terminal), you can use Android Studio as well to build the NdkBinderClient APK.
+
+$ ./gradlew NdkBinderClient:assembleDebug
+
+$ adb install -f NdkBinderClient/build/outputs/apk/debug/NdkBinderClient-debug.apk
+```
+
+3. Run `NdkBinderClient`'s main Activity from Android app launcher.
 
 ## NDK Binder service implementation details
 
