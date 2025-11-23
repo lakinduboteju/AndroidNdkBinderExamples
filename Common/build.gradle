@@ -78,9 +78,9 @@ tasks.register('compileAidlNdk') {
         def aidlFile = [projectDir.absolutePath, 'src', 'main', 'aidl',
                         'com', 'example', "IMyService.aidl"].join(File.separator)
 
-        exec {
-            executable(aidl)
-            args('--lang=ndk', '-o', outDir, '-h', headerOutDir, '-I', searchPathForImports, aidlFile)
+        project.exec { ExecSpec execSpec ->
+            execSpec.executable = aidl
+            execSpec.args = ['--lang=ndk', '-o', outDir, '-h', headerOutDir, '-I', searchPathForImports, aidlFile]
         }
 
         // Fix generated code for NDK 26+ compatibility
