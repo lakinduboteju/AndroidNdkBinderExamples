@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.example.javabinderclient'
+    namespace = 'com.example.javabinderclient'
     compileSdk 36
 
     defaultConfig {

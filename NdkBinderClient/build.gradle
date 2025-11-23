@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.example.ndkbinderclient'
+    namespace = 'com.example.ndkbinderclient'
     compileSdk 35
 
     defaultConfig {
