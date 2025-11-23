@@ -39,9 +39,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     {
         super.onResume();
 
-        Intent intent = new Intent();
-        intent.setClassName("com.example.javabinderservice",
-                "com.example.javabinderservice.MyService");
+        Intent intent = new Intent("com.example.javabinderservice.MyService");
+        intent.setPackage("com.example.javabinderservice");
 
         Log.d(Constants.LOG_TAG, "[App] [java] bindService");
 

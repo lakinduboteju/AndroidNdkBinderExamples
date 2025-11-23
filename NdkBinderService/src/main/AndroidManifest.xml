@@ -11,6 +11,9 @@
         <service
             android:name=".MyService"
             android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.ndkbinderservice.MyService" />
+            </intent-filter>
         </service>
 
     </application>
