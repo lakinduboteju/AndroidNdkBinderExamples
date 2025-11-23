@@ -27,13 +27,19 @@ allprojects {
 }
 
 tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+    def commonProject = project(':Common')
+    def ndkBinderServiceProject = project(':NdkBinderService')
+    def javaBinderClientProject = project(':JavaBinderClient')
+    def javaBinderServiceProject = project(':JavaBinderService')
+    def ndkBinderClientProject = project(':NdkBinderClient')
+    
     doLast {
-        if (rootProject.buildDir.exists()) rootProject.buildDir.deleteDir()
-        if (project(':Common').buildDir.exists()) project(':Common').buildDir.deleteDir()
-        if (project(':NdkBinderService').buildDir.exists()) project(':NdkBinderService').buildDir.deleteDir()
-        if (project(':JavaBinderClient').buildDir.exists()) project(':JavaBinderClient').buildDir.deleteDir()
-        if (project(':JavaBinderService').buildDir.exists()) project(':JavaBinderService').buildDir.deleteDir()
-        if (project(':NdkBinderClient').buildDir.exists()) project(':NdkBinderClient').buildDir.deleteDir()
+        if (commonProject.buildDir.exists()) commonProject.buildDir.deleteDir()
+        if (ndkBinderServiceProject.buildDir.exists()) ndkBinderServiceProject.buildDir.deleteDir()
+        if (javaBinderClientProject.buildDir.exists()) javaBinderClientProject.buildDir.deleteDir()
+        if (javaBinderServiceProject.buildDir.exists()) javaBinderServiceProject.buildDir.deleteDir()
+        if (ndkBinderClientProject.buildDir.exists()) ndkBinderClientProject.buildDir.deleteDir()
     }
 }
 
