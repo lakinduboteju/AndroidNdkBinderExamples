@@ -1,6 +1,9 @@
 #pragma once
 
+#include <string>
 #include <android/binder_status.h>
+#include <android/binder_parcel.h>
+#include <android/binder_parcel_utils.h>
 
 namespace aidl {
 namespace com {
@@ -35,9 +38,6 @@ public:
 public:
     binder_status_t readFromParcel(const AParcel* pParcel)
     {
-        int32_t iNotNull;
-        AParcel_readInt32(pParcel, &iNotNull);
-
         AParcel_readInt32(pParcel, &i_Int);
 
         int64_t aLong;
@@ -57,9 +57,6 @@ public:
 
     binder_status_t writeToParcel(AParcel* pParcel) const
     {
-        int32_t iNotNull = 1;
-        AParcel_writeInt32(pParcel, iNotNull);
-
         AParcel_writeInt32(pParcel, i_Int);
 
         AParcel_writeInt64(pParcel, l_Long);
@@ -79,8 +76,8 @@ public:
     {
         char strBuf[1024];
         snprintf(strBuf, 1024,
-                "ComplexType{int=%d, long=%ld, bool=%d, float=%f, double=%lf, string='%s'}",
-                 i_Int, l_Long, b_Boolean, f_Float, d_Double, s_String.c_str());
+                "ComplexType{int=%d, long=%lld, bool=%d, float=%f, double=%lf, string='%s'}",
+                 i_Int, (long long)l_Long, b_Boolean, f_Float, d_Double, s_String.c_str());
 
         pOutputString->append(strBuf);
     }
