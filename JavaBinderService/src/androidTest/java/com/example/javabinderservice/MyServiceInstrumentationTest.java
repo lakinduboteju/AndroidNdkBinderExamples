@@ -126,7 +126,7 @@ public class MyServiceInstrumentationTest {
         assertNotNull("Returned ComplexType should not be null", result);
         assertEquals("Int value should match", 100, result.mInt);
         assertEquals("Long value should match", 200L, result.mLong);
-        assertEquals("Boolean value should match", false, result.mBoolean);
+        assertFalse("Boolean value should match", result.mBoolean);
         assertEquals("Float value should match", 3.5f, result.mFloat, 0.001f);
         assertEquals("Double value should match", 4.5, result.mDouble, 0.001);
         assertEquals("String value should match", "Test Return", result.mString);

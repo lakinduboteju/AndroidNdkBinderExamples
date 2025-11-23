@@ -165,7 +165,7 @@ public class ComplexTypeTest {
 
         assertEquals(Integer.MAX_VALUE, boundaryType.mInt);
         assertEquals(Long.MAX_VALUE, boundaryType.mLong);
-        assertEquals(false, boundaryType.mBoolean);
+        assertFalse(boundaryType.mBoolean);
         assertEquals(Float.MAX_VALUE, boundaryType.mFloat, 0.001f);
         assertEquals(Double.MAX_VALUE, boundaryType.mDouble, 0.0001);
     }
