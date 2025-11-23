@@ -5,7 +5,7 @@
 ## What's New
 
 ✅ **Updated to Android SDK 35**
-✅ **Gradle 8.7 & Android Gradle Plugin 8.5.2**
+✅ **Gradle 8.13 & Android Gradle Plugin 8.13.1**
 ✅ **Modern dependency management** (mavenCentral, latest AndroidX)
 ✅ **Comprehensive test coverage** (Unit + Instrumentation tests)
 ✅ **JaCoCo test coverage reporting**
@@ -34,15 +34,17 @@ org.gradle.java.home=/path/to/your/jdk-17
 Build commands:
 
 ```bash
-# Build all modules (recommended - skips lint tasks with known issues)
-./gradlew assembleDebug -x validateSigningDebug -x lint -x lintDebug -x lintAnalyzeDebug -x lintAnalyzeDebugAndroidTest
+# Clean build (works with Gradle 8.13+)
+./gradlew clean assembleDebug -x validateSigningDebug -x lint
+
+# Or without clean (incremental build)
+./gradlew assembleDebug -x validateSigningDebug -x lint
 
 # Build specific module
 ./gradlew NdkBinderService:assembleDebug -x validateSigningDebug
-
-# For a full clean build (note: may have issues with clean task file locks)
-./gradlew assembleDebug -x validateSigningDebug -x lint -x lintDebug -x lintAnalyzeDebug -x lintAnalyzeDebugAndroidTest
 ```
+
+**Note**: With Gradle 8.13 and AGP 8.13.1, the clean task now works properly!
 
 ### Running Tests
 
@@ -89,8 +91,8 @@ AndroidNdkBinderExamples/
 ## Key Improvements
 
 ### 1. Build System (Fully Updated & Working)
-- **Gradle**: Updated from 6.5 → 8.7
-- **AGP**: Updated from 4.1.2 → 8.5.2
+- **Gradle**: Updated from 6.5 → 8.13
+- **AGP**: Updated from 4.1.2 → 8.13.1
 - **Build Configuration**: All modules updated for AGP 8.x compatibility
   - `compileSdkVersion` → `compileSdk`
   - `minSdkVersion` → `minSdk`
@@ -160,7 +162,7 @@ AndroidNdkBinderExamples/
 
 1. **Java/Gradle Compatibility**
    - Issue: Gradle 6.5 incompatible with Java 17
-   - Fix: Updated to Gradle 8.7 which fully supports Java 17
+   - Fix: Updated to Gradle 8.13 which fully supports Java 17
    - Config: Added `org.gradle.java.home` to local.properties
 
 2. **AIDL Compiler Output**
@@ -187,13 +189,15 @@ AndroidNdkBinderExamples/
 
 ### Known Limitations
 
-- **Lint Tasks**: Some lint tasks fail due to JVM compatibility issues with AGP 8.5.2
-  - Workaround: Build with `-x lint -x lintDebug -x validateSigningDebug` flags
+- **validateSigningDebug Task**: Fails with JvmWideVariable initialization error
+  - Workaround: Build with `-x validateSigningDebug` flag
+  - Impact: No impact on APK generation, only affects debug signing validation
+
+- **Lint Tasks**: Some lint tasks may have compatibility issues
+  - Workaround: Build with `-x lint` flag
   - Impact: APK builds work perfectly, only static analysis is affected
 
-- **Clean Task**: May encounter file lock issues on some builds
-  - Workaround: Use `assembleDebug` without `clean` for incremental builds
-  - Alternative: Manually delete build directories if needed
+**Good News**: Clean task works properly with Gradle 8.13+! 🎉
 
 ## Migration Notes
 
@@ -223,7 +227,7 @@ Same as original project.
 
 ### Build Fails with "Unsupported class file major version 61"
 - **Cause**: Java 17 incompatible with Gradle version
-- **Solution**: Ensure Gradle 8.7+ is being used (check gradle-wrapper.properties)
+- **Solution**: Ensure Gradle 8.13+ is being used (check gradle-wrapper.properties)
 
 ### Build Fails with "CMake not found"
 - **Cause**: CMake not installed or version hardcoded
@@ -238,14 +242,15 @@ Same as original project.
 - **Solution**: Add `android:exported="true"` to activities/services with intent-filters
 
 ### JvmWideVariable Initialization Error
-- **Cause**: AGP 8.5.2 JVM compatibility issue with certain tasks
-- **Solution**: Skip problematic tasks: `-x validateSigningDebug -x lint`
+- **Cause**: JVM compatibility issue with validateSigningDebug task
+- **Solution**: Skip the task: `-x validateSigningDebug`
+- **Note**: This only affects debug signing validation, APKs build successfully
 
 ---
 
 **Last Updated**: November 2025
 **Android API Level**: 35
-**Gradle**: 8.7
-**AGP**: 8.5.2
+**Gradle**: 8.13
+**AGP**: 8.13.1
 **NDK**: 26.1.10909125+
-**Status**: ✅ Fully Modernized & Build Working
+**Status**: ✅ Fully Modernized & Build Working (Clean Task Fixed!)
