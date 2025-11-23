@@ -31,6 +31,7 @@ android {
         }
         debug {
             minifyEnabled false
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -43,6 +44,15 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("${System.getProperty('user.home')}/.android/debug.keystore")
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
     }
 }
 

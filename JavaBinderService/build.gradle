@@ -23,6 +23,7 @@ android {
         }
         debug {
             minifyEnabled false
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -33,6 +34,15 @@ android {
 
     buildFeatures {
         aidl = true
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("${System.getProperty('user.home')}/.android/debug.keystore")
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
     }
 }
 
