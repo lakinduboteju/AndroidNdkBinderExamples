@@ -4,11 +4,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 35
+    namespace 'com.example.common'
+    compileSdk 35
 
     defaultConfig {
-        minSdkVersion 29
-        targetSdkVersion 35
+        minSdk 29
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -58,7 +59,16 @@ dependencies {
 
 task compileAidlNdk() {
     doLast {
-        def aidl = [android.sdkDirectory, 'build-tools', android.buildToolsVersion,
+        // Find the latest build-tools version
+        def buildToolsDir = new File(android.sdkDirectory, 'build-tools')
+        def buildToolsVersion = buildToolsDir.listFiles()
+                .findAll { it.isDirectory() }
+                .collect { it.name }
+                .sort()
+                .reverse()
+                .find { it ==~ /\d+\.\d+\.\d+/ }
+
+        def aidl = [android.sdkDirectory, 'build-tools', buildToolsVersion,
                     'aidl'].join(File.separator)
 
         def outDir = [projectDir.absolutePath, 'src', 'main', 'cpp', 'aidl'].join(File.separator)
@@ -73,6 +83,20 @@ task compileAidlNdk() {
         exec {
             executable(aidl)
             args('--lang=ndk', '-o', outDir, '-h', headerOutDir, '-I', searchPathForImports, aidlFile)
+        }
+
+        // Fix generated code for NDK 26+ compatibility
+        def generatedFile = new File(outDir, 'com/example/IMyService.cpp')
+        if (generatedFile.exists()) {
+            def content = generatedFile.text
+            // Fix defineClass call (remove last 2 arguments)
+            content = content.replaceAll(
+                    /(\:\:ndk\:\:ICInterface\:\:defineClass\([^,]+,\s*[^,]+),\s*[^,]+,\s*\d+\)/,
+                    '$1)'
+            )
+            // Fix asBinderReference() -> asBinder()
+            content = content.replaceAll('asBinderReference', 'asBinder')
+            generatedFile.text = content
         }
     }
 }

@@ -1,4 +1,4 @@
 // ComplexType.aidl
 package com.example;
 
-parcelable ComplexType cpp_header "ComplexType.h";
+parcelable ComplexType ndk_header "ComplexType.h";

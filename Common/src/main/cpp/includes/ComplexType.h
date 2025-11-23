@@ -1,6 +1,9 @@
 #pragma once
 
+#include <string>
 #include <android/binder_status.h>
+#include <android/binder_parcel.h>
+#include <android/binder_parcel_utils.h>
 
 namespace aidl {
 namespace com {
