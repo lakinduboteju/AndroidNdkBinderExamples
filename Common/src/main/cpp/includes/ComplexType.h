@@ -76,8 +76,8 @@ public:
     {
         char strBuf[1024];
         snprintf(strBuf, 1024,
-                "ComplexType{int=%d, long=%ld, bool=%d, float=%f, double=%lf, string='%s'}",
-                 i_Int, l_Long, b_Boolean, f_Float, d_Double, s_String.c_str());
+                "ComplexType{int=%d, long=%lld, bool=%d, float=%f, double=%lf, string='%s'}",
+                 i_Int, (long long)l_Long, b_Boolean, f_Float, d_Double, s_String.c_str());
 
         pOutputString->append(strBuf);
     }
