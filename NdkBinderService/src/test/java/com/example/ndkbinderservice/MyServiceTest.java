@@ -5,6 +5,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import com.example.ComplexType;
 import com.example.IMyService;
+import com.example.ndkbinderservice.shadows.ShadowMyService;
+import com.example.ndkbinderservice.shadows.ShadowSystem;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +25,7 @@ import static org.junit.Assert.*;
  * through instrumentation tests that run on actual Android runtime with JNI support.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, shadows = {ShadowSystem.class, ShadowMyService.class})
 public class MyServiceTest {
 
     private ServiceController<MyService> controller;
