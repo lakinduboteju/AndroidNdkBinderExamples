@@ -28,11 +28,12 @@ allprojects {
 
 tasks.register('clean', Delete) {
     doLast {
-        rootProject.buildDir.deleteDir()
-        project(':NdkBinderService').buildDir.deleteDir()
-        project(':JavaBinderClient').buildDir.deleteDir()
-        project(':JavaBinderService').buildDir.deleteDir()
-        project(':NdkBinderClient').buildDir.deleteDir()
+        if (rootProject.buildDir.exists()) rootProject.buildDir.deleteDir()
+        if (project(':Common').buildDir.exists()) project(':Common').buildDir.deleteDir()
+        if (project(':NdkBinderService').buildDir.exists()) project(':NdkBinderService').buildDir.deleteDir()
+        if (project(':JavaBinderClient').buildDir.exists()) project(':JavaBinderClient').buildDir.deleteDir()
+        if (project(':JavaBinderService').buildDir.exists()) project(':JavaBinderService').buildDir.deleteDir()
+        if (project(':NdkBinderClient').buildDir.exists()) project(':NdkBinderClient').buildDir.deleteDir()
     }
 }
 
