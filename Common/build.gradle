@@ -78,7 +78,8 @@ tasks.register('compileAidlNdk') {
         def aidlFile = [projectDir.absolutePath, 'src', 'main', 'aidl',
                         'com', 'example', "IMyService.aidl"].join(File.separator)
 
-        project.exec { ExecSpec execSpec ->
+        def execOperations = services.get(org.gradle.process.ExecOperations)
+        execOperations.exec { ExecSpec execSpec ->
             execSpec.executable = aidl
             execSpec.args = ['--lang=ndk', '-o', outDir, '-h', headerOutDir, '-I', searchPathForImports, aidlFile]
         }
