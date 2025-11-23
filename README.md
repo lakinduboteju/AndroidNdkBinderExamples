@@ -459,23 +459,6 @@ Both examples use the standard Android service binding pattern:
 3. Client's `onServiceConnected()` receives the `IBinder`
 4. Client can now make IPC calls through the binder
 
-## 🎓 Learning Resources
-
-### Official Documentation
-
-- [Android NDK Binder](https://developer.android.com/ndk/reference/group/ndk-binder)
-- [AIDL Overview](https://developer.android.com/guide/components/aidl)
-- [Android Services](https://developer.android.com/guide/components/services)
-- [JNI Tips](https://developer.android.com/training/articles/perf-jni)
-
-### Related Topics
-
-- Binder IPC internals
-- Native service development
-- Cross-language data marshalling
-- Android service lifecycle
-- Multi-process architecture
-
 ## 📊 Technical Specifications
 
 | Component | Version | Purpose |
@@ -488,15 +471,6 @@ Both examples use the standard Android service binding pattern:
 | Java | 17 | JVM language |
 | C++ Standard | C++17 | Native language |
 | Min SDK | 29 (Android 10) | Minimum supported version |
-
-### Dependency Versions
-
-```gradle
-// AndroidX
-androidx.appcompat:appcompat:1.7.1
-com.google.android.material:material:1.13.0
-androidx.constraintlayout:constraintlayout:2.2.1
-```
 
 ## 🤝 Contributing
 
