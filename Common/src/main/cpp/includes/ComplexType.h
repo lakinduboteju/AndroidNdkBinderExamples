@@ -38,9 +38,6 @@ public:
 public:
     binder_status_t readFromParcel(const AParcel* pParcel)
     {
-        int32_t iNotNull;
-        AParcel_readInt32(pParcel, &iNotNull);
-
         AParcel_readInt32(pParcel, &i_Int);
 
         int64_t aLong;
@@ -60,9 +57,6 @@ public:
 
     binder_status_t writeToParcel(AParcel* pParcel) const
     {
-        int32_t iNotNull = 1;
-        AParcel_writeInt32(pParcel, iNotNull);
-
         AParcel_writeInt32(pParcel, i_Int);
 
         AParcel_writeInt64(pParcel, l_Long);
