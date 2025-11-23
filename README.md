@@ -16,7 +16,7 @@ This tutorial demonstrates:
 3. ✅ **AIDL interface definitions** for cross-language communication
 4. ✅ **Complex data type marshalling** between Java and C++
 5. ✅ **Service binding patterns** for IPC communication
-6. ✅ **Modern Android development** with latest build tools and testing practices
+6. ✅ **Modern Android development** with latest build tools
 
 ## 🏗️ Project Structure
 
@@ -28,17 +28,14 @@ AndroidNdkBinderExamples/
 │   │   └── ComplexType.aidl  # Custom parcelable type
 │   ├── src/main/cpp/         # C++ implementations
 │   │   └── includes/         # C++ headers (ComplexType.h)
-│   ├── src/main/java/        # Java data classes
-│   └── src/test/java/        # Unit tests
+│   └── src/main/java/        # Java data classes
 │
 ├── NdkBinderService/         # C++ Binder service implementation
 │   ├── src/main/cpp/         # Native service implementation
 │   └── src/main/java/        # Java wrapper for C++ service
 │
 ├── JavaBinderService/        # Java Binder service implementation
-│   ├── src/main/java/        # Pure Java service
-│   ├── src/test/java/        # Unit tests
-│   └── src/androidTest/      # Instrumentation tests
+│   └── src/main/java/        # Pure Java service
 │
 ├── NdkBinderClient/          # C++ client for Java service
 │   ├── src/main/cpp/         # Native client implementation
@@ -100,16 +97,14 @@ org.gradle.java.home=/path/to/your/jdk-17
 
 ```bash
 # Clean build all modules
-./gradlew clean assembleDebug -x validateSigningDebug -x lint
+./gradlew clean assembleDebug
 
 # Build specific module
-./gradlew NdkBinderService:assembleDebug -x validateSigningDebug
+./gradlew NdkBinderService:assembleDebug
 
 # Incremental build (without clean)
-./gradlew assembleDebug -x validateSigningDebug
+./gradlew assembleDebug
 ```
-
-**Note:** We skip `validateSigningDebug` due to a known JVM compatibility issue with AGP 8.13.1 and Java 17. This doesn't affect APK generation.
 
 ### Build Output
 
@@ -126,7 +121,7 @@ This example shows how to implement a high-performance Android Service in C++ an
 
 ```bash
 # Build the NDK Binder Service
-./gradlew NdkBinderService:assembleDebug -x validateSigningDebug
+./gradlew NdkBinderService:assembleDebug
 
 # Install on device/emulator
 adb install -f NdkBinderService/build/outputs/apk/debug/NdkBinderService-debug.apk
@@ -136,7 +131,7 @@ adb install -f NdkBinderService/build/outputs/apk/debug/NdkBinderService-debug.a
 
 ```bash
 # Build the Java client
-./gradlew JavaBinderClient:assembleDebug -x validateSigningDebug
+./gradlew JavaBinderClient:assembleDebug
 
 # Install on device/emulator
 adb install -f JavaBinderClient/build/outputs/apk/debug/JavaBinderClient-debug.apk
@@ -222,7 +217,7 @@ This example demonstrates calling a Java service from native C++ code through th
 
 ```bash
 # Build the Java service
-./gradlew JavaBinderService:assembleDebug -x validateSigningDebug
+./gradlew JavaBinderService:assembleDebug
 
 # Install on device/emulator
 adb install -f JavaBinderService/build/outputs/apk/debug/JavaBinderService-debug.apk
@@ -232,7 +227,7 @@ adb install -f JavaBinderService/build/outputs/apk/debug/JavaBinderService-debug
 
 ```bash
 # Build the NDK client
-./gradlew NdkBinderClient:assembleDebug -x validateSigningDebug
+./gradlew NdkBinderClient:assembleDebug
 
 # Install on device/emulator
 adb install -f NdkBinderClient/build/outputs/apk/debug/NdkBinderClient-debug.apk
@@ -432,72 +427,6 @@ target_link_libraries(native-lib
 
 **Note:** We no longer hardcode the CMake version; it uses the SDK-provided version automatically.
 
-## 🧪 Testing
-
-The project includes comprehensive test coverage for all components.
-
-### Unit Tests
-
-Run all unit tests:
-
-```bash
-./gradlew test
-```
-
-Run tests for a specific module:
-
-```bash
-./gradlew JavaBinderService:testDebugUnitTest
-```
-
-**Test Coverage:**
-
-- **Common Module**: 15 unit tests
-  - `ComplexTypeTest`: Parcelable implementation, boundary values, null handling
-  - `ConstantsTest`: Constant validation
-
-- **JavaBinderService**: 13 unit tests
-  - Service lifecycle, binder methods, AIDL implementation, edge cases
-
-**Framework:** JUnit 4.13.2 + Robolectric 4.16 (for Android framework mocking)
-
-### Instrumentation Tests
-
-Instrumentation tests run on an actual Android device/emulator.
-
-**Important:** Due to a known AGP/Java 17 compatibility issue, instrumentation tests must be run manually:
-
-```bash
-# 1. Build and install the app APK
-./gradlew JavaBinderService:assembleDebug -x validateSigningDebug
-adb install -r JavaBinderService/build/outputs/apk/debug/JavaBinderService-debug.apk
-
-# 2. Build and install the test APK
-./gradlew JavaBinderService:assembleDebugAndroidTest -x validateSigningDebug
-adb install -r JavaBinderService/build/outputs/apk/androidTest/debug/JavaBinderService-debug-androidTest.apk
-
-# 3. Run the tests
-adb shell am instrument -w com.example.javabinderservice.test/androidx.test.runner.AndroidJUnitRunner
-```
-
-**Test Coverage:**
-
-- **JavaBinderService**: 10 instrumentation tests
-  - Real Android runtime service binding
-  - IPC communication testing
-  - Service connection lifecycle
-  - Integration scenarios
-
-### Test Coverage Reports
-
-Generate coverage reports with JaCoCo:
-
-```bash
-./gradlew jacocoTestReport
-```
-
-View reports at: `build/reports/jacoco/jacocoTestReport/html/index.html`
-
 ## 🔍 Understanding the Key Concepts
 
 ### 1. NDK Binder APIs
@@ -529,73 +458,6 @@ Both examples use the standard Android service binding pattern:
 2. System calls service's `onBind()` returning an `IBinder`
 3. Client's `onServiceConnected()` receives the `IBinder`
 4. Client can now make IPC calls through the binder
-
-## ⚠️ Known Limitations & Workarounds
-
-### 1. validateSigningDebug Task
-
-**Issue:** JvmWideVariable initialization error with AGP 8.13.1 and Java 17
-
-**Workaround:** Skip the task during build:
-```bash
-./gradlew assembleDebug -x validateSigningDebug
-```
-
-**Impact:** None on APK generation; only affects debug signing validation
-
-### 2. Lint Tasks (Optional)
-
-**Issue:** Some lint tasks may have compatibility issues
-
-**Workaround:** Skip lint for faster builds:
-```bash
-./gradlew assembleDebug -x validateSigningDebug -x lint
-```
-
-**Impact:** APK builds work perfectly; only static analysis is affected
-
-### 3. Connected Android Test Task
-
-**Issue:** `connectedAndroidTest` fails due to JvmWideVariable issue
-
-**Workaround:** Use manual APK installation method (shown in Testing section)
-
-**Impact:** Tests work perfectly when run manually
-
-## 🐛 Troubleshooting
-
-### Build fails with "Unsupported class file major version 61"
-
-**Cause:** Java 17 incompatible with Gradle version
-
-**Solution:** Ensure Gradle 8.13+ is being used (check `gradle/wrapper/gradle-wrapper.properties`)
-
-### Build fails with "CMake not found"
-
-**Cause:** CMake not installed via SDK Manager
-
-**Solution:**
-1. Open Android Studio → SDK Manager
-2. Go to SDK Tools tab
-3. Check "CMake" and click Apply
-
-### Build fails with "asBinderReference not declared"
-
-**Cause:** AIDL generated code not fixed for NDK 26+
-
-**Solution:** Ensure `Common/build.gradle` includes the auto-fix code in the `compileAidlNdk` task
-
-### Build fails with "android:exported needs to be specified"
-
-**Cause:** Android 12+ requires explicit `android:exported` for components with intent filters
-
-**Solution:** This is already fixed in the manifests. If you see this error, check that `AndroidManifest.xml` files have `android:exported="true"` on all `<activity>` tags with intent filters.
-
-### Tests fail with "Android SDK 36 requires Java 21"
-
-**Cause:** Robolectric 4.16 requires Java 21 for SDK 36, but we use Java 17
-
-**Solution:** Already configured! Check that `Common/src/test/resources/robolectric.properties` exists with `sdk=34`
 
 ## 🎓 Learning Resources
 
@@ -634,29 +496,16 @@ Both examples use the standard Android service binding pattern:
 androidx.appcompat:appcompat:1.7.1
 com.google.android.material:material:1.13.0
 androidx.constraintlayout:constraintlayout:2.2.1
-
-// Testing
-junit:junit:4.13.2
-org.mockito:mockito-core:5.20.0
-org.robolectric:robolectric:4.16
-androidx.test.ext:junit:1.3.0
-androidx.test.espresso:espresso-core:3.7.0
-androidx.test:runner:1.7.0
-
-// Coverage
-org.jacoco:jacoco:0.8.14
 ```
 
 ## 🤝 Contributing
 
 Contributions are welcome! When contributing:
 
-1. ✅ Write unit tests for all new Java code
-2. ✅ Add instrumentation tests for service/IPC changes
-3. ✅ Maintain or improve test coverage
-4. ✅ Follow existing code style and conventions
-5. ✅ Update documentation for new features
-6. ✅ Ensure all tests pass before submitting
+1. ✅ Follow existing code style and conventions
+2. ✅ Update documentation for new features
+3. ✅ Test your changes on actual devices/emulators
+4. ✅ Ensure builds complete successfully
 
 ## 📝 License
 
@@ -673,7 +522,7 @@ This project serves as a practical reference for Android developers working with
 
 **Last Updated:** November 2025
 **Maintained For:** Android 15 (API 36) and NDK 26+
-**Build Status:** ✅ Fully Working with Comprehensive Test Coverage
+**Build Status:** ✅ Fully Working
 
 ---
 
